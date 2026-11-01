@@ -88,7 +88,7 @@ namespace SubscriptionServiceTests
         }
 
         /// <summary>
-        /// Verify(Times.Never) + Verify(Times.AtMost): MemberService лише читає дані, тому Update не викликається жодного разу.
+        /// /// Verify(Times.Never) + Verify(Times.Once): MemberService лише читає дані, тому Update не викликається, а репозиторій запитується рівно один раз.
         /// </summary>
         [Fact]
         public void GetMember_DoesNotUpdateRepository()
@@ -98,7 +98,18 @@ namespace SubscriptionServiceTests
             CreateService().GetMember(1);
 
             _repo.Verify(r => r.Update(It.IsAny<Member>()), Times.Never);
-            _repo.Verify(r => r.GetById(1), Times.AtMost(1));
+            _repo.Verify(r => r.GetById(1), Times.Once);
+        }
+
+        /// <summary>
+        /// Assert.False: IsActive повертає false для відсутнього учасника (репозиторій повертає null).
+        /// </summary>
+        [Fact]
+        public void IsActive_MemberNotFound_ReturnsFalse()
+        {
+            _repo.Setup(r => r.GetById(It.IsAny<int>())).Returns((Member?)null);
+        
+            Assert.False(CreateService().IsActive(99));
         }
     }
 }
