@@ -172,10 +172,10 @@ namespace SubscriptionServiceTests
         }
 
         /// <summary>
-        /// Verify(Times.AtMost) + Verify(Times.Never): для одного простроченого учасника сповіщення не більше одного, а непрострочені не оновлюються.
+        /// Verify(Times.Once) + Verify(Times.Never): для одного простроченого учасника сповіщення не більше одного, а непрострочені не оновлюються.
         /// </summary>
         [Fact]
-        public void DeactivateExpiredMembers_OneExpired_SendsAtMostOneNotification()
+        public void DeactivateExpiredMembers_OneExpired_SendsExactlyOneNotification()
         {
             _repo.Setup(r => r.GetAll()).Returns(new[]
             {
@@ -185,7 +185,7 @@ namespace SubscriptionServiceTests
 
             CreateService().DeactivateExpiredMembers();
 
-            _notify.Verify(n => n.SendNotification(It.IsAny<string>(), It.IsAny<int>()), Times.AtMost(1));
+            _notify.Verify(n => n.SendNotification(It.IsAny<string>(), It.IsAny<int>()), Times.Once);
             _repo.Verify(r => r.Update(It.Is<Member>(m => m.Id == 2)), Times.Never);
         }
     }
